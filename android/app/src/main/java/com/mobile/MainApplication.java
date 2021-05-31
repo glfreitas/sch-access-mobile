@@ -28,6 +28,9 @@ import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
 
+//import com.zmxv.RNSound.RNSoundPackage;
+
+
 public class MainApplication extends Application implements ReactApplication {
   private final ReactModuleRegistryProvider mModuleRegistryProvider = new ReactModuleRegistryProvider(
     new BasePackageList().getPackageList()
@@ -38,14 +41,24 @@ public class MainApplication extends Application implements ReactApplication {
     public boolean getUseDeveloperSupport() {
       return BuildConfig.DEBUG;
     }
-
+    
     @Override
     protected List<ReactPackage> getPackages() {
-      List<ReactPackage> packages = new PackageList(this).getPackages();
-      packages.add(new ModuleRegistryAdapter(mModuleRegistryProvider));
-      return packages;
-    }
 
+        return Arrays.<ReactPackage>asList(
+            new MainReactPackage()
+        );
+        /*
+        List<ReactPackage> packages = new PackageList(this).getPackages();
+
+        packages.add(new ModuleRegistryAdapter(mModuleRegistryProvider));
+        packages.add(new MainReactPackage());
+        packages.add(new WatermelonDBPackage());          
+        
+      return packages;
+      */
+    }
+    
     @Override
     protected String getJSMainModuleName() {
       return "index";
@@ -68,6 +81,16 @@ public class MainApplication extends Application implements ReactApplication {
         return UpdatesController.getInstance().getBundleAssetName();
       }
     }
+    
+    /*
+    @Override
+    protected List<ReactPackage> getPackages() {
+    return Arrays.<ReactPackage>asList(
+        new MainReactPackage(),
+        new RNSoundPackage() // <-- New
+    );
+    }
+    */
   };
 
   @Override
