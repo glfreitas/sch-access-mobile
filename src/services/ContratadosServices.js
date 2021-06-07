@@ -6,7 +6,6 @@ const db = DatabaseConnection.getConnection()
 
 export default class ContratadosService {
 
-
     static addData(param: Contratados) {
         return new Promise((resolve, reject) => db.transaction(
             tx => {
@@ -25,33 +24,38 @@ export default class ContratadosService {
     }
 
     static deleteById(CON_CosMatricula: string) {
-        db.transaction(
+        return new Promise((resolve, reject) => db.transaction(
             tx => {
                 tx.executeSql(`delete from ${table} where CON_CosMatricula = ?;`, [CON_CosMatricula], (_, { rows }) => {
+                    resolve();
                 }), (sqlError) => {
                     console.log(sqlError);
                 }
             }, (txError) => {
                 console.log(txError);
-            });
+            }
+        ));
     }
 
     static deleteAll() {
-        db.transaction(
+        return new Promise((resolve, reject) => db.transaction(
             tx => {
                 tx.executeSql(`delete from ${table}`, [], (_, { rows }) => {
+                    resolve()
                 }), (sqlError) => {
                     console.log(sqlError);
                 }
             }, (txError) => {
                 console.log(txError);
-            });
+            }
+        ));
     }
 
 
     static updateById(param: Contratados) {
         return new Promise((resolve, reject) => db.transaction(tx => {
             tx.executeSql(`update ${table} set CON_CosMatricula = ?, CON_CosFilial = ?, CON_DssNome = ?, CON_DssSituacao = ?  where CON_CosMatricula = ?;`, [param.CON_CosMatricula, param.CON_CosFilial, param.CON_DssNome, param.CON_DssSituacao, param.CON_CosMatricula], () => {
+                resolve();
             }), (sqlError) => {
                 console.log(sqlError);
             }

@@ -6,7 +6,6 @@ const db = DatabaseConnection.getConnection()
 
 export default class MarksService {
 
-
     static addData(param: Marks) {
         return new Promise((resolve, reject) => db.transaction(
             tx => {
@@ -25,21 +24,23 @@ export default class MarksService {
     }
 
     static deleteById(MAR_CdiMarcacao: number) {
-        db.transaction(
-            tx => {
+        return new Promise((resolve, reject) => db.transaction(tx => {
                 tx.executeSql(`delete from ${table} where MAR_CdiMarcacao = ?;`, [MAR_CdiMarcacao], (_, { rows }) => {
+                    resolve();
                 }), (sqlError) => {
                     console.log(sqlError);
                 }
             }, (txError) => {
                 console.log(txError);
-            });
+            }
+        ));
     }
 
 
     static updateById(param: Marks) {
         return new Promise((resolve, reject) => db.transaction(tx => {
             tx.executeSql(`update ${table} set MAR_CosMatricula = ? where MAR_CdiMarcacao = ?;`, [param.MAR_CosMatricula, param.MAR_CdiMarcacao], () => {
+                resolve();
             }), (sqlError) => {
                 console.log(sqlError);
             }
