@@ -24,7 +24,6 @@ function QrScaner({ navigation }) {
     const [type, setType] = useState(BarCodeScanner.Constants.Type.front);
     const [Barcodetype, setBarcodeType] = useState([BarCodeScanner.Constants.BarCodeType.qr]);
     const [mensagem, setMensagem] = useState('Aproxime seu crachá!');
-    const [contratado, setContratado] = useState([])
     const [bgMensagem, setBgMensagem] = useState(GREEN);
     const [fonteMensagem, setFonteMensagem] = useState(YELLOWLIGHT);
 
@@ -47,24 +46,23 @@ function QrScaner({ navigation }) {
 
     }
 
-    const insertMark = (item) => {
+    const insertMark = async (item) => {
         let file: Marks = new Marks()
         file.MAR_CosMatricula = item
         file.MAR_DtdDataHora = moment(new Date()).format("DD-MM-YYYY HH:mm:ss")
 
         //console.log(moment(new Date()).format("DD-MM-YYYY HH:mm:ss"));
 
-        const insertId = MarksService.addData(file);
+        const insertId = await MarksService.addData(file);
         if (insertId == null || insertId == undefined) {
             alert("Não foi possivel inserir o registro")
         }
     }
 
     const validaContratado = async (MAR_CosMatricula) => {
-
-        let Contratado = await ContratadosService.findById(MAR_CosMatricula);
-        await setContratado(Contratado._array);
-        //console.log(Contratado._array);
+        const contratado = await ContratadosService.findById(MAR_CosMatricula);
+        
+        return contratado._array;
     }
 
     useEffect(() => {
@@ -75,34 +73,30 @@ function QrScaner({ navigation }) {
     }, []);
 
     const handleBarCodeScanned = async ({ type, data }) => {
-
         setScanned(true);
-        setContratado([]);
-
-        console.log(type);
 
         const mark = {
             MAR_CdiMarcacao: 1,
             MAR_CosMatricula: data
         }
 
-        await validaContratado(data);
+        const contratado = await validaContratado(data);
 
         if (contratado.length > 0) {
             playSoundSucess();
 
-            await setBgMensagem(GREEN);
-            await setFonteMensagem(YELLOWLIGHT);
+            setBgMensagem(GREEN);
+            setFonteMensagem(YELLOWLIGHT);
 
-            await setMensagem('Colaborador: ' + contratado[0].CON_DssNome + '\nMatricula: ' + contratado[0].CON_CosMatricula);
+            setMensagem('Colaborador: ' + contratado[0].CON_DssNome + '\nMatricula: ' + contratado[0].CON_CosMatricula);
             //console.log(contratado[0].CON_DssNome);
-            insertMark(data);
+            await insertMark(data);
         } else {
 
-            await setBgMensagem(RED);
-            await setFonteMensagem(WHITE);
+            setBgMensagem(RED);
+            setFonteMensagem(WHITE);
 
-            await setMensagem('COLABORADOR NÃO ENCONTRADO');
+            setMensagem('COLABORADOR NÃO ENCONTRADO');
             playSoundFail();
         }
 
