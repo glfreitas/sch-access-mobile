@@ -24,18 +24,13 @@ function Sync({ navigation }) {
     const [atualContratados, setAtualContratados] = useState(0);
 
     const [marcacoes, setMarcacoes] = useState([]);
-    const [deviceID, setDeviceID] = useState('');
+    const [deviceID, setDeviceID] = useState(
+        Constants.deviceId.replace(/-/g, '').substr(0, 10).toUpperCase()
+    );
     const [sync, setSync] = useState(false);
-
-    useEffect(() => {
-
-        setDeviceID(Constants.deviceId.replace(/-/g, '').substr(0, 10).toUpperCase());
-
-    }, []);
 
     /** Função Sincronizar Marcações */
     async function handleSyncMarcacoes() {
-
         const marcacoes = await MarksService.findAll();
 
         setTotalMarks(marcacoes.length);
@@ -48,9 +43,10 @@ function Sync({ navigation }) {
             return false;
         }
 
-        marcacoes._array.forEach(async mark => {
+        console.log('oi')
 
-            await setAtualMarks((prevState) => prevState + 1);
+        for (const mark of marcacoes) {
+            setAtualMarks((prevState) => prevState + 1);
 
             mark.MAR_CosFilial = '0102';
             mark.MAR_CosDispositivo = deviceID;
@@ -63,14 +59,14 @@ function Sync({ navigation }) {
                 .catch(function (error) {
                     console.log(error);
                 });
-
-        });
+            
+            await MarksService.deleteById(mark.MAR_CdiMarcacao);
+        }
 
     };
 
     /** Função Sincronizar Marcações */
     async function handleSyncContratados() {
-
         const response = await api.get('contratados');
 
         if (response.status != 200) {
@@ -83,8 +79,7 @@ function Sync({ navigation }) {
 
         await ContratadosService.deleteAll();
 
-        response.data.forEach(async contratado => {
-
+        for (const contratado of response.data) {
             setAtualContratados((prevState) => prevState + 1);
 
             let cont: Contratados = new Contratados();
@@ -102,8 +97,7 @@ function Sync({ navigation }) {
                 console.log("Inserido: ${contratado.CON_CosMatricula}");
             }
             */
-
-        });
+        }
     };
 
     /** Função Sincronizar */
@@ -149,7 +143,7 @@ function Sync({ navigation }) {
                         justifyContent: 'center'
                     }}
                     activeOpacity={sync}
-                    onPress={async () => { handleSync() }} >
+                    onPress={() => handleSync()} >
                     <Icon name="spinner" style={styles.icon}></Icon>
                     <Text style={styles.texto}>Sincronizar</Text>
                 </TouchableOpacity>
